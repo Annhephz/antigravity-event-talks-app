@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Tracker</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-secondary"></div>
+    
+    <div class="app-container">
+        <header class="app-header">
+            <div class="brand-section">
+                <div class="logo-wrapper">
+                    <i class="fa-solid fa-database logo-icon"></i>
+                </div>
+                <div class="title-details">
+                    <h1>BigQuery Release Notes</h1>
+                    <p class="subtitle">Stay updated with the latest Google Cloud BigQuery releases</p>
+                </div>
+            </div>
+            
+            <div class="actions-section">
+                <button id="refresh-btn" class="btn btn-primary" title="Refresh notes">
+                    <span class="btn-text">Refresh</span>
+                    <i class="fa-solid fa-arrows-rotate btn-spinner" id="spinner"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <!-- Feed Metadata Card -->
+            <div class="feed-meta-card glass-panel hide" id="feed-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Feed Title:</span>
+                    <span class="meta-val" id="feed-title-val">-</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Last Updated Feed:</span>
+                    <span class="meta-val" id="feed-updated-val">-</span>
+                </div>
+            </div>
+
+            <!-- Selection Manager Banner -->
+            <div class="selection-drawer glass-panel hide" id="selection-drawer">
+                <div class="drawer-content">
+                    <div class="selection-info">
+                        <span class="badge" id="selected-count">1</span>
+                        <span class="selection-text">update selected for sharing</span>
+                    </div>
+                    <div class="drawer-actions">
+                        <button id="tweet-btn" class="btn btn-twitter">
+                            <i class="fa-brands fa-x-twitter"></i> Tweet Update
+                        </button>
+                        <button id="clear-btn" class="btn btn-secondary">
+                            Clear Selection
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loader State -->
+            <div class="loader-container" id="feed-loader">
+                <div class="pulse-loader"></div>
+                <p>Fetching latest release notes...</p>
+            </div>
+
+            <!-- Error State -->
+            <div class="error-container glass-panel hide" id="error-card">
+                <i class="fa-solid fa-triangle-exclamation error-icon"></i>
+                <h3>Unable to retrieve notes</h3>
+                <p id="error-message">Something went wrong while fetching the BigQuery feed.</p>
+                <button id="retry-btn" class="btn btn-secondary">Try Again</button>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-container glass-panel hide" id="empty-card">
+                <i class="fa-solid fa-inbox empty-icon"></i>
+                <h3>No updates found</h3>
+                <p>The release notes feed seems to be empty or currently unavailable.</p>
+            </div>
+
+            <!-- Notes List -->
+            <div class="notes-container" id="notes-list">
+                <!-- Javascript will inject cards here -->
+            </div>
+        </main>
+        
+        <footer class="app-footer">
+            <p>BigQuery Release Notes web app powered by Flask. Double-click or check a card to select and tweet.</p>
+        </footer>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
