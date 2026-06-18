@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const refreshBtn = document.getElementById('refresh-btn');
     const exportCsvBtn = document.getElementById('export-csv-btn');
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const themeIcon = document.getElementById('theme-icon');
     const retryBtn = document.getElementById('retry-btn');
     const spinner = document.getElementById('spinner');
     const notesList = document.getElementById('notes-list');
@@ -25,12 +27,36 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedNote = null;
     let notesData = [];
 
-    // Initialize
+    // Initialize Theme
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    if (currentTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeIcon.className = 'fa-solid fa-sun';
+    } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeIcon.className = 'fa-solid fa-moon';
+    }
+
+    // Initialize Notes
     fetchNotes();
 
     // Event Listeners
     refreshBtn.addEventListener('click', fetchNotes);
     exportCsvBtn.addEventListener('click', exportToCSV);
+    
+    themeToggleBtn.addEventListener('click', () => {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        if (isLight) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeIcon.className = 'fa-solid fa-moon';
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeIcon.className = 'fa-solid fa-sun';
+            localStorage.setItem('theme', 'light');
+        }
+    });
+
     retryBtn.addEventListener('click', fetchNotes);
     clearBtn.addEventListener('click', clearSelection);
     
