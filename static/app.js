@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const refreshBtn = document.getElementById('refresh-btn');
+    const exportCsvBtn = document.getElementById('export-csv-btn');
     const retryBtn = document.getElementById('retry-btn');
     const spinner = document.getElementById('spinner');
     const notesList = document.getElementById('notes-list');
@@ -29,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listeners
     refreshBtn.addEventListener('click', fetchNotes);
+    exportCsvBtn.addEventListener('click', exportToCSV);
     retryBtn.addEventListener('click', fetchNotes);
     clearBtn.addEventListener('click', clearSelection);
     
@@ -116,6 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${note.content}
                 </div>
                 <div class="note-card-footer">
+                    <button class="btn btn-secondary btn-sm copy-card-btn" data-id="${note.id}">
+                        <i class="fa-solid fa-copy"></i> <span>Copy Info</span>
+                    </button>
                     <button class="btn btn-secondary btn-sm share-card-btn" data-id="${note.id}">
                         <i class="fa-brands fa-x-twitter"></i> Share Update
                     </button>
@@ -129,6 +134,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Toggle select
                 toggleSelectCard(card, note);
+            });
+            
+            // Event listener for copy button
+            const cardCopyBtn = card.querySelector('.copy-card-btn');
+            cardCopyBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // prevent card selection trigger
+                copyCardInfo(note, cardCopyBtn);
             });
             
             // Event listener for direct share button
@@ -237,5 +249,73 @@ document.addEventListener('DOMContentLoaded', () => {
         errorCard.classList.add('hide');
         spinner.classList.remove('spinning');
         refreshBtn.disabled = false;
+    }
+
+    // Copy card information to clipboard
+    function copyCardInfo(note, buttonElement) {
+        // Strip HTML tags for clean text content
+        const cleanContent = note.content.replace(/<[^>]*>/g, '').trim();
+        const formattedDate = formatDate(note.updated);
+        
+        const textToCopy = `Title: ${note.title}\nDate: ${formattedDate}\nLink: ${note.link}\n\nDescription:\n${cleanContent}`;
+        
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            // Success Feedback
+            const icon = buttonElement.querySelector('i');
+            const span = buttonElement.querySelector('span');
+            
+            const originalIconClass = icon.className;
+            const originalText = span.textContent;
+            
+            icon.className = 'fa-solid fa-check';
+            span.textContent = 'Copied!';
+            buttonElement.style.borderColor = 'var(--success)';
+            buttonElement.style.color = 'var(--success)';
+            
+            setTimeout(() => {
+                icon.className = originalIconClass;
+                span.textContent = originalText;
+                buttonElement.style.borderColor = '';
+                buttonElement.style.color = '';
+            }, 2000);
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+        });
+    }
+
+    // Export current loaded notes to CSV
+    function exportToCSV() {
+        if (notesData.length === 0) return;
+        
+        const headers = ['Title', 'Date', 'Link', 'Content'];
+        
+        const escapeCSV = (str) => {
+            if (!str) return '""';
+            // Replace double quotes with escaped double quotes, and strip HTML tags
+            const cleanStr = str.replace(/<[^>]*>/g, '').replace(/\r?\n/g, ' ').trim();
+            return '"' + cleanStr.replace(/"/g, '""') + '"';
+        };
+        
+        const rows = notesData.map(note => [
+            escapeCSV(note.title),
+            escapeCSV(formatDate(note.updated)),
+            escapeCSV(note.link),
+            escapeCSV(note.content)
+        ]);
+        
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(e => e.join(','))
+        ].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `bigquery_release_notes_${new Date().toISOString().slice(0, 10)}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 });
